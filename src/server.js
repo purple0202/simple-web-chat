@@ -24,7 +24,8 @@ const sockets = [];
 
 // function handleConnection(socket) {
 //     console.log(socket);
-// }
+// } comment for commit
+
 
 wss.on("connection", (socket) => {
     sockets.push(socket);
