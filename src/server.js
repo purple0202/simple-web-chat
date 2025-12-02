@@ -20,17 +20,33 @@ const handleListen = () => console.log('Listening on http://localhost:3000');
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-function handleConnection(socket) {
-    console.log(socket);
-}
+const sockets = [];
+
+// function handleConnection(socket) {
+//     console.log(socket);
+// }
 
 wss.on("connection", (socket) => {
+    sockets.push(socket);
+    socket["nickname"] = 'Anon';
     console.log("Connected to Browser");
     socket.on("close",() => console.log("Disconnected from the Browser!"));
     socket.on("message", (message) => {
-        console.log(message.toString());
+        console.log("New message!: ", message.toString());
+        const parsed = JSON.parse(message);
+        console.log(parsed);
+        switch (parsed.type) {
+            case "new_msg":
+                sockets.forEach(aSocket => aSocket.send(`${socket.nickname}: ${parsed.payload}`));
+                break
+            case "username":
+                console.log("Nickname: ", parsed.payload);
+                socket["nickname"] = parsed.payload;
+                break
+        }
+        // socket.send(message.toString());
     });
-    socket.send("hello!");
+    // socket.send("hello!");
 });
 
 server.listen(3000, handleListen);
