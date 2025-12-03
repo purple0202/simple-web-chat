@@ -22,12 +22,28 @@ const server = http.createServer(app);
 const wsServer = SocketIO(server);
 
 wsServer.on("connection", socket => {
+    socket["nickname"] = "anon"
+    socket.onAny((event) => {
+        console.log(`Socket Event: ${event}`);
+    });
     console.log("connected to Browser!");
     socket.on("enter_room", (msg, done) => {
-        console.log(msg);
-        setTimeout(() => {
-            done();
-        }, 3000);
+        const roomName = msg.payload;
+        console.log(typeof roomName);
+        socket.join(roomName);
+        done();
+        socket.to(roomName).emit("welcome", socket.nickname);
+    });
+    socket.on("disconnecting", () => {
+        socket.rooms.forEach(room => socket.to(room).emit("bye", socket.nickname));
+    });
+    socket.on("new_message", (msg, room, done) => {
+        socket.to(room).emit("new_message", socket.nickname, msg);
+        done();
+    });
+    socket.on("nickname", (name) => {
+        socket["nickname"] = name;
+        socket.emit("name_welcome", name);
     });
 })
 

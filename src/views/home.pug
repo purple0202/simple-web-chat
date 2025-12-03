@@ -9,9 +9,20 @@ html(lang="en")
         header
             h1 Noom!
         main
-            #welcome 
-                form
+            #welcome
+                form#name
+                    input(placeholder="message", required, type="text")
+                    button Save
+                form#roomname
                     input(placeholder="room name", required, type="text")
-                    button Enter Room 
+                    button Enter Room
+            #room 
+                h3
+                ul
+                
+                form#msg
+                    input(placeholder="message", required, type="text")
+                    button Send 
+                 
         script(src="/socket.io/socket.io.js")
         script(src="public/js/app.js")

@@ -1,19 +1,64 @@
 const socket = io();
 
 const welcome = document.getElementById("welcome");
-const form = welcome.querySelector("form");
+const form = welcome.querySelector("#roomname");
+const room = document.getElementById("room");
+const msgForm = room.querySelector("#msg");
+const nameForm = welcome.querySelector("#name");
+
+room.hidden = true;
+nameForm.addEventListener("submit", handleNicknameSubmit);
+
+let roomname;
+
+function handleMsgSubmit(event){
+    event.preventDefault();
+    const input = msgForm.querySelector("input");
+    const content = input.value;
+    socket.emit("new_message", content, roomname, () => {
+        addMessage(`You: ${content}`);
+    });
+    input.value = "";
+}
+
+function handleNicknameSubmit(event) {
+    event.preventDefault();
+    const input = nameForm.querySelector("input");
+    socket.emit("nickname", input.value);
+    nameForm.hidden = true;
+}
+
+function showRoom() {
+    welcome.hidden = true;
+    room.hidden = false;
+    const h3 = room.querySelector("h3");
+    h3.innerText = `Room ${roomname}`;
+    msgForm.addEventListener("submit", handleMsgSubmit);
+
+}
+
+function addMessage(message){
+    const ul = room.querySelector("ul");
+    const li = document.createElement("li");
+    li.innerText = message;
+    ul.appendChild(li);
+}
 
 function handleRoomSubmit(event){
     console.log("room name submitted!");
     event.preventDefault();
     const input = form.querySelector("input");
-    socket.emit("enter_room", { payload: input.value }, () => {
-        console.log("server is done!");
-    });
+    roomname = input.value;
+    socket.emit("enter_room", { payload: input.value }, showRoom);
     input.value = "";
 }
 
 form.addEventListener("submit", handleRoomSubmit);
+
+socket.on("welcome", (user) => {addMessage(`${user} joined!`)})
+socket.on("bye", (user) => {addMessage(`${user} left!`)})
+socket.on("new_message", (user, msg) => {addMessage(`${user}: ${msg}`)})
+socket.on("name_welcome", (name) => {addMessage(`Hello, ${name}!`)})
 
 // const msgList = document.querySelector("ul");
 // const msgForm = document.querySelector("#msg");
