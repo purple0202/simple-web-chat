@@ -1,5 +1,6 @@
 import http from "http";
 import WebSocket from "ws";
+import SocketIO from "socket.io";
 import express from "express";
 
 const app = express();
@@ -18,36 +19,50 @@ console.log("hello");
 const handleListen = () => console.log('Listening on http://localhost:3000');
 
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const wsServer = SocketIO(server);
 
-const sockets = [];
+wsServer.on("connection", socket => {
+    console.log("connected to Browser!");
+    socket.on("enter_room", (msg, done) => {
+        console.log(msg);
+        setTimeout(() => {
+            done();
+        }, 3000);
+    });
+})
+
+server.listen(3000, handleListen);
+
+// const wss = new WebSocket.Server({ server });
+
+// const sockets = [];
 
 // function handleConnection(socket) {
 //     console.log(socket);
 // } comment for commit
 
 
-wss.on("connection", (socket) => {
-    sockets.push(socket);
-    socket["nickname"] = 'Anon';
-    console.log("Connected to Browser");
-    socket.on("close",() => console.log("Disconnected from the Browser!"));
-    socket.on("message", (message) => {
-        console.log("New message!: ", message.toString());
-        const parsed = JSON.parse(message);
-        console.log(parsed);
-        switch (parsed.type) {
-            case "new_msg":
-                sockets.forEach(aSocket => aSocket.send(`${socket.nickname}: ${parsed.payload}`));
-                break
-            case "username":
-                console.log("Nickname: ", parsed.payload);
-                socket["nickname"] = parsed.payload;
-                break
-        }
-        // socket.send(message.toString());
-    });
-    // socket.send("hello!");
-});
+// wss.on("connection", (socket) => {
+//     sockets.push(socket);
+//     socket["nickname"] = 'Anon';
+//     console.log("Connected to Browser");
+//     socket.on("close",() => console.log("Disconnected from the Browser!"));
+//     socket.on("message", (message) => {
+//         console.log("New message!: ", message.toString());
+//         const parsed = JSON.parse(message);
+//         console.log(parsed);
+//         switch (parsed.type) {
+//             case "new_msg":
+//                 sockets.forEach(aSocket => aSocket.send(`${socket.nickname}: ${parsed.payload}`));
+//                 break
+//             case "username":
+//                 console.log("Nickname: ", parsed.payload);
+//                 socket["nickname"] = parsed.payload;
+//                 break
+//         }
+//         // socket.send(message.toString());
+//     });
+//     // socket.send("hello!");
+// });
 
-server.listen(3000, handleListen);
+// server.listen(3000, handleListen);
