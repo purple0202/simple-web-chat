@@ -5,6 +5,7 @@ const form = welcome.querySelector("#roomname");
 const room = document.getElementById("room");
 const msgForm = room.querySelector("#msg");
 const nameForm = welcome.querySelector("#name");
+const nameChangeForm = room.querySelector("#changename");
 
 room.hidden = true;
 nameForm.addEventListener("submit", handleNicknameSubmit);
@@ -53,13 +54,36 @@ function handleRoomSubmit(event){
     input.value = "";
 }
 
+function handleNewName(event){
+    event.preventDefault();
+    const input = nameChangeForm.querySelector("input");
+    newName = input.value;
+    socket.emit("new_name", { payload:input.value }, roomname);
+    addMessage(`Your nickname was updated to: ${newName}!`)
+    input.value = ""
+}
+
 form.addEventListener("submit", handleRoomSubmit);
+nameChangeForm.addEventListener("submit", handleNewName);
 
 socket.on("welcome", (user) => {addMessage(`${user} joined!`)})
 socket.on("bye", (user) => {addMessage(`${user} left!`)})
 socket.on("new_message", (user, msg) => {addMessage(`${user}: ${msg}`)})
 socket.on("name_welcome", (name) => {addMessage(`Hello, ${name}!`)})
-
+socket.on("new_name", (oldname, newname) => {addMessage(`${oldname} has updated their nickname to: ${newname}!`)})
+// socket.on("room_change", console.log);
+socket.on("room_change", (rooms) => {
+    const roomList = welcome.querySelector("ul");
+    roomList.innerHTML = "";
+    if(rooms.length === 0) {
+        return;
+    }
+    rooms.forEach((room) => {
+        const li = document.createElement("li");
+        li.innerText = room;
+        roomList.append(li);
+    })
+})
 // const msgList = document.querySelector("ul");
 // const msgForm = document.querySelector("#msg");
 // const nameForm = document.querySelector("#nickname");
