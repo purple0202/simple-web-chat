@@ -9,21 +9,27 @@ html(lang="en")
         header
             h1 Noom!
         main
-            div#myStream
-                video#myFace(autoplay, playsinline, width="400", height="400")
-                button#mute Mute
-                button#camera Turn camera off
-                select#cameras
-                    option(value="device") Face Camera
-            #welcome
-                form#name
-                    input(placeholder="username", required, type="text")
-                    button Save
-                form#roomname
+            #welcome 
+                form
                     input(placeholder="room name", required, type="text")
-                    button Enter Room
-                h4 Open Rooms:
-                ul
+                    button Enter room
+            div#call
+                div#myStream
+                    video#myFace(autoplay, playsinline, width="400", height="400")
+                    button#mute Mute
+                    button#camera Turn camera off
+                    select#cameras
+                        option(value="device") Face Camera
+                video#peerStream(autoplay, playsinline, width="400", height="400")
+            //- #welcome
+            //-     form#name
+            //-         input(placeholder="username", required, type="text")
+            //-         button Save
+            //-     form#roomname
+            //-         input(placeholder="room name", required, type="text")
+            //-         button Enter Room
+            //-     h4 Open Rooms:
+            //-     ul
             #room 
                 h3
                 ul
@@ -31,10 +37,10 @@ html(lang="en")
                 form#msg
                     input(placeholder="message", required, type="text")
                     button Send 
-                form#changename
-                    h3 Want to change your name?
-                    input(placeholder="new name", required, type="text")
-                    button Save 
+                //- form#changename
+                //-     h3 Want to change your name?
+                //-     input(placeholder="new name", required, type="text")
+                //-     button Save 
                  
         script(src="/socket.io/socket.io.js")
         script(src="public/js/app.js")

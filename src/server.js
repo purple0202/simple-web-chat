@@ -43,6 +43,20 @@ wsServer.on("connection", socket => {
         // console.log(wsServer.sockets.adapter);
         console.log(`Socket Event: ${event}`);
     });
+    socket.on("join_room", (roomName, done) => {
+        console.log(countRoom(roomName));
+        if(countRoom(roomName) === undefined){
+            console.log("undefined");
+
+        }
+        if((countRoom(roomName)) === 2){
+            done(false);
+        } else {
+            socket.join(roomName);
+            done(true);
+            socket.to(roomName).emit("welcome")
+        }
+    })
     console.log("connected to Browser!");
     socket.on("enter_room", (msg, done) => {
         const roomName = msg.payload;
@@ -52,6 +66,16 @@ wsServer.on("connection", socket => {
         socket.to(roomName).emit("welcome", socket.nickname);
         wsServer.sockets.emit("room_change", publicRooms());
     });
+    socket.on("offer", (offer, roomName) => {
+        socket.to(roomName).emit("offer", offer);
+    });
+    socket.on("answer", (answer, roomName) => {
+        socket.to(roomName).emit("answer", answer);
+    })
+    socket.on("ice", (ice, roomName) => {
+        socket.to(roomName).emit("ice", ice);
+    })
+
     socket.on("disconnecting", () => {
         socket.rooms.forEach(room => socket.to(room).emit("bye", socket.nickname));
     });
